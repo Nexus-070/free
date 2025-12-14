@@ -1,9 +1,10 @@
+
 FROM ubuntu:22.04
 
 # မလိုအပ်သောမေးခွန်းများမမေးရန်
 ENV DEBIAN_FRONTEND=noninteractive
 
-# လိုအပ်သော package များ (SSH, Curl, Unzip) install လုပ်ခြင်း
+# လိုအပ်သော package များ install လုပ်ခြင်း
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
@@ -17,10 +18,12 @@ RUN mkdir /var/run/sshd
 RUN echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config
 RUN echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
 
-# Ngrok install လုပ်ခြင်း
-RUN curl -s https://ngrok-agent-binaries.s3.amazonaws.com/ngrok-v3-stable-linux-amd64.tgz | tar xvz -C /usr/local/bin
+# --- FIXED SECTION ---
+# Ngrok Link အမှန်ဖြင့် ပြန်ချိတ်ခြင်း
+RUN curl -s https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz | tar xvz -C /usr/local/bin
+# ---------------------
 
-# Script ဖိုင်ကို Docker build time တွင် တခါတည်းရေးထည့်ခြင်း
+# Start Script ဖန်တီးခြင်း
 RUN echo '#!/bin/bash\n\
 \n\
 # 1. Ngrok Token စစ်ဆေးခြင်း\n\
@@ -29,7 +32,7 @@ if [ -z "$NGROK_AUTH_TOKEN" ]; then\n\
   exit 1\n\
 fi\n\
 \n\
-# 2. Password သတ်မှတ်ခြင်း (Railway Env မှယူသည်၊ မရှိလျှင် root ဟုထားမည်)\n\
+# 2. Password သတ်မှတ်ခြင်း\n\
 PASS=${SSH_PASSWORD:-root}\n\
 echo "root:$PASS" | chpasswd\n\
 \n\
